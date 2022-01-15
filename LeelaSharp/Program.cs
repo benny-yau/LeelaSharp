@@ -19,6 +19,7 @@ namespace LeelaSharp
         {
             try
             {
+                //start process for leelaz
                 Process process = new Process();
                 process.StartInfo.FileName = @"..\..\..\leelazero\leelaz";
                 process.StartInfo.Arguments = @"--gtp --lagbuffer 0 --weights ..\..\lznetwork.gz";
@@ -75,29 +76,36 @@ namespace LeelaSharp
             do
             {
                 inputText = Console.ReadLine();
-                if (inputText.Length > 0)
+                if (inputText.Length == 0)
+                    break;
+                if (!playFullGame)
                 {
-                    if (g.GameInfo.SetupMoves.Count > 0)
+                    if (inputText == "s" || inputText == "search")
                     {
-                        if (inputText == "s" || inputText == "search")
-                        {
-                            MonteCarloGame.useLeelaZero = true;
-                            cgs.SearchAnswer(g);
-                            return true;
-                        }
-                        else if (inputText == "a" || inputText == "answer")
-                            cgs.GetAnswer(g);
-                        else if (inputText == "m" || inputText == "mapping")
-                        {
-                            MonteCarloGame.useLeelaZero = true;
-                            MonteCarloMapping.MapScenario(game);
-                        }
+                        MonteCarloGame.useLeelaZero = true;
+                        cgs.SearchAnswer(g);
+                        return true;
                     }
-                    if (inputText == "h" || inputText == "help")
-                        GetHelp();                    
-                    MonteCarloGame.inputWriter.WriteLine(inputText);
+                    else if (inputText == "a" || inputText == "answer")
+                        cgs.GetAnswer(g);
+                    else if (inputText == "m" || inputText == "mapping")
+                    {
+                        MonteCarloGame.useLeelaZero = true;
+                        MonteCarloMapping.MapScenario(g);
+                        Console.WriteLine("Mapping completed.");
+                    }
+                    else if (inputText == "v" || inputText == "verification")
+                    {
+                        MonteCarloGame.useLeelaZero = true;
+                        int error = MappingVerification.VerifyScenario(g);
+                        Console.WriteLine("Verification completed. Errors: " + error);
+                    }
                 }
-            } while (inputText.Length > 0);
+                if (inputText == "h" || inputText == "help")
+                    GetHelp();
+                //enter command for leelaz
+                MonteCarloGame.inputWriter.WriteLine(inputText);
+            } while (true);
             return true;
         }
 
@@ -107,6 +115,7 @@ namespace LeelaSharp
             Console.WriteLine("s - Search answer");
             Console.WriteLine("a - Get answer");
             Console.WriteLine("m - Map scenario");
+            Console.WriteLine("v - Verify scenario");
 
             List<String> commandList = new List<String> {
     "protocol_version",
